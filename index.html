@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elige tu Destino: Juego de Consecuencias</title>
+    <!-- Carga de Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración de la fuente Inter -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FAFAFA; /* Fondo blanco muy suave */
+        }
+        /* Estilos personalizados para el juego */
+        .card-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+        /* Color principal: Cian/Neon */
+        .text-neon {
+            color: #00bcd4; 
+        }
+        .bg-neon {
+            background-color: #00bcd4;
+        }
+        .text-emphasis {
+            color: #006064; /* Color de énfasis oscuro */
+            font-weight: 600; 
+        }
+        .bg-gradient-header {
+            background-color: #f0f0f0; /* Gris claro para el encabezado fijo */
+            border-bottom: 3px solid #00bcd4;
+        }
+        /* Estilos para botones de decisión con degradado */
+        .decision-button-color {
+            background-image: linear-gradient(to right, #e0f7fa, #b2ebf2); /* Degradado suave */
+            color: #006064; /* Color de texto oscuro para contraste */
+            border: 1px solid #00bcd4;
+        }
+        .decision-button-color:hover {
+            background-image: linear-gradient(to right, #b2ebf2, #80deea); /* Degradado hover */
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Estilos específicos para el acordeón ITS */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .accordion-content.active {
+            max-height: 800px; /* Suficiente para todo el contenido en párrafos */
+            padding-top: 1rem; 
+            padding-bottom: 1rem;
+        }
+        .accordion-header .arrow {
+            transition: transform 0.3s ease;
+        }
+        .accordion-header.active .arrow {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800">
+
+    <!-- Navegación Fija Superior -->
+    <header class="bg-gradient-header sticky top-0 z-50 shadow-lg">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-extrabold text-neon tracking-tight flex items-center">
+                        <!-- Icono del semáforo -->
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4-4m-4 4l-4 4m-4 4l4-4m-4 4l-4 4m4-4V4"></path></svg>
+                        Elige tu Destino
+                    </h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <button onclick="navigate('home')" class="text-gray-700 hover:text-neon px-3 py-2 rounded-md text-sm font-medium transition duration-150 flex items-center">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"></path></svg>
+                            Inicio
+                        </button>
+                        <button onclick="navigate('game')" class="text-gray-700 hover:text-neon px-3 py-2 rounded-md text-sm font-medium transition duration-150 flex items-center">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13l-3 3m0 0l-3-3m3 3V8m0 4l3-3m-3 3l-3-3m-3 3l-3-3"></path></svg>
+                            Jugar
+                        </button>
+                        <button onclick="navigate('library')" class="text-gray-700 hover:text-neon px-3 py-2 rounded-md text-sm font-medium transition duration-150 flex items-center">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.433 9.351 5 8 5c-4.418 0-8 2.806-8 6s3.582 6 8 6c.905 0 1.776-.177 2.593-.423M12 6.253c1.168.82 2.649 1.347 4 1.347 4.418 0 8-2.806 8-6s-3.582-6-8-6c-.905 0-1.776.177-2.593.423M12 6.253v13"></path></svg>
+                            Biblioteca de ITS
+                        </button>
+                        <button onclick="navigate('key_advice')" class="text-gray-700 hover:text-neon px-3 py-2 rounded-md text-sm font-medium transition duration-150 flex items-center">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-4v10a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2z"></path></svg>
+                            Consejos Clave
+                        </button>
+                        <button onclick="navigate('bibliography')" class="text-gray-700 hover:text-neon px-3 py-2 rounded-md text-sm font-medium transition duration-150 flex items-center">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.433 9.351 5 8 5c-4.418 0-8 2.806-8 6s3.582 6 8 6c.905 0 1.776-.177 2.593-.423M12 6.253c1.168.82 2.649 1.347 4 1.347 4.418 0 8-2.806 8-6s-3.582-6-8-6c-.905 0-1.776.177-2.593.423M12 6.253v13"></path></svg>
+                            Bibliografía Médica
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contenedor Principal de la Aplicación (Centrado) -->
+    <main id="app-content" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pt-10"></main>
+
+    <!-- Footer para el Bloque 4 (Solo visible en Home) -->
+    <footer id="main-footer" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pb-4 text-center">
+        <p class="text-sm text-gray-500">
+            <span class="font-semibold text-neon">El Juego de las Consecuencias</span> | Creado por: Sergio Niño
+        </p>
+    </footer>
+
+    <script>
+        // --- 1. DATOS Y CONTENIDO DE LA APLICACIÓN ---
+
+        const APP_DATA = {
+            itsLibrary: {
+                vph: {
+                    title: "Virus del Papiloma Humano (VPH)",
+                    what: "Es la infección viral más común. Afecta la piel y las membranas mucosas, transmitiéndose por contacto piel con piel, no solo durante la penetración.",
+                    curable: "NO tiene cura. El cuerpo puede controlarlo (remisión), pero el virus permanece latente de por vida. <span class='text-emphasis'>¡Existe una vacuna preventiva muy efectiva!</span>",
+                    treatment: "Se tratan las manifestaciones del virus (verrugas genitales, lesiones precancerosas) mediante procedimientos médicos (crioterapia, cirugía) o cremas.",
+                    symptoms: "La mayoría de las veces es <span class='text-emphasis'>ASINTOMÁTICO</span>. Los síntomas visibles son verrugas genitales. El riesgo de cáncer se detecta solo con pruebas como el Papanicolaou o colposcopia.",
+                    consequence: "Los tipos de VPH de alto riesgo son la principal causa de cáncer de cuello uterino y están ligados a cánceres de ano, pene, vagina y garganta."
+                },
+                clamidia: {
+                    title: "Clamidia (Chlamydia trachomatis)",
+                    what: "Infección bacteriana que afecta los genitales y el tracto urinario. Es una de las ITS bacterianas más comunes y fácil de curar, pero peligrosa si se ignora.",
+                    curable: "SÍ, se cura totalmente con un ciclo corto de <span class='text-emphasis'>antibióticos</span>. Es indispensable que <span class='text-emphasis'>ambas personas</span> reciban tratamiento para evitar recontagio.",
+                    treatment: "Antibióticos específicos, recetados por un médico. Si se detecta a tiempo, la cura es sencilla y rápida.",
+                    symptoms: "Es <span class='text-emphasis'>ASINTOMÁTICA</span> en la mayoría de los casos (hasta el 70% de las mujeres). Cuando hay síntomas: ardor al orinar, flujo u orina inusual, secreción uretral en hombres y dolor pélvico en mujeres.",
+                    consequence: "Sin tratamiento, puede causar <span class='text-emphasis'>infertilidad</span> en mujeres (debido a la Enfermedad Inflamatoria Pélvica o EIP) y, rara vez, inflamación de los testículos en hombres."
+                },
+                herpes: {
+                    title: "Herpes Genital (Virus del Herpes Simple, tipo 1 y 2)",
+                    what: "Infección viral crónica que causa brotes periódicos de ampollas o llagas. Se transmite por contacto con la piel, incluso sin brotes visibles.",
+                    curable: "NO tiene cura. Una vez que te contagias, el virus se aloja en el cuerpo <span class='text-emphasis'>de por vida</span>. El objetivo es controlar los brotes.",
+                    treatment: "Medicamentos <span class='text-emphasis'>antivirales</span> diarios para reducir la frecuencia, la intensidad de los brotes y, crucialmente, disminuir el riesgo de transmisión a otras personas.",
+                    symptoms: "Muchas personas son <span class='text-emphasis'>ASINTOMÁTICAS</span>. El síntoma más claro es el brote de ampollas dolorosas que se rompen y forman costras en el área genital, anal o bucal (fuegos labiales).",
+                    consequence: "No suele ser mortal, pero causa brotes <span class='text-emphasis'>recurrentes</span> y dolorosos. Hay un riesgo grave para los bebés si se contagian durante el parto (herpes neonatal)."
+                },
+                sifilis: {
+                    title: "Sífilis (Treponema pallidum)",
+                    what: "Infección bacteriana compleja con cuatro etapas distintas. Es una 'gran imitadora' porque sus síntomas se confunden con otras enfermedades.",
+                    curable: "SÍ, se cura totalmente con <span class='text-emphasis'>Penicilina</span>. La curación es 100% efectiva y más rápida si se detecta en las primeras etapas.",
+                    treatment: "Antibióticos (principalmente Penicilina, inyectada o pastillas). La dosis depende de la etapa de la enfermedad.",
+                    symptoms: "Varían por etapa: 1ª etapa: una llaga indolora (<span class='text-emphasis'>chancro</span>) que desaparece sola. 2ª etapa: sarpullido. 3ª etapa (latente): <span class='text-emphasis'>ASINTOMÁTICA</span> y puede durar años.",
+                    consequence: "Si no se trata, la sífilis terciaria puede causar <span class='text-emphasis'>daño irreversible</span> y grave al corazón, cerebro (neurosífilis), ojos y sistema nervioso, llevando a la incapacidad o incluso a la muerte."
+                },
+                gonorrea: {
+                    title: "Gonorrea (Neisseria gonorrhoeae)",
+                    what: "Infección bacteriana que prospera en el tracto reproductivo, pero que también puede infectar la garganta, la boca, los ojos y el ano.",
+                    curable: "SÍ, es curable con <span class='text-emphasis'>antibióticos</span>. Sin embargo, las cepas <span class='text-emphasis'>resistentes</span> están en aumento, por lo que es vital NO automedicarse y usar el tratamiento recetado.",
+                    treatment: "Antibióticos, a menudo en una sola dosis combinada o inyectable, para garantizar la erradicación de la bacteria.",
+                    symptoms: "A menudo <span class='text-emphasis'>ASINTOMÁTICA</span>, especialmente en mujeres. Síntomas comunes: secreción (amarilla/verde) del pene o vagina, dolor/ardor al orinar.",
+                    consequence: "Al igual que la clamidia, puede llevar a la <span class='text-emphasis'>infertilidad</span> y a la Enfermedad Inflamatoria Pélvica (EIP). En casos raros, puede propagarse a la sangre y causar artritis."
+                },
+                hepatitisb: {
+                    title: "Hepatitis B (VHB)",
+                    what: "Infección viral grave que ataca el hígado. Se transmite por contacto con sangre, semen u otros fluidos corporales, incluyendo el contacto sexual.",
+                    curable: "No hay cura definitiva para la forma crónica. Sin embargo, existe una <span class='text-emphasis'>VACUNA</span> muy efectiva para prevenirla antes de la exposición.",
+                    treatment: "Para la forma crónica, se usan medicamentos <span class='text-emphasis'>antivirales</span> de por vida para controlar el virus y prevenir el daño al hígado. Muchos adultos eliminan la infección por sí solos (forma aguda).",
+                    symptoms: "Muchos son <span class='text-emphasis'>ASINTOMÁTICOS</span> al principio. Cuando hay síntomas, incluyen: fatiga extrema, náuseas, dolor abdominal y <span class='text-emphasis'>ictericia</span> (coloración amarilla de piel/ojos).",
+                    consequence: "La Hepatitis B crónica puede evolucionar a <span class='text-emphasis'>cirrosis</span> (cicatrización) o <span class='text-emphasis'>cáncer de hígado</span>, que es una de las principales causas de muerte por ITS no tratada."
+                },
+                vih: {
+                    title: "VIH (Virus de Inmunodeficiencia Humana)",
+                    what: "Es un virus que ataca el sistema inmunitario, debilitando la defensa natural del cuerpo contra infecciones y cánceres. Si no se trata, evoluciona a SIDA.",
+                    curable: "NO tiene cura, pero es <span class='text-emphasis'>completamente tratable</span>. Con tratamiento antirretroviral (TAR), una persona con VIH tiene una expectativa de vida normal.",
+                    treatment: "Tratamiento antirretroviral (TAR). Hoy en día, una persona con carga viral indetectable <span class='text-emphasis'>NO transmite</span> el virus (I=I). También se usa PrEP para prevenir la infección en personas sin el virus.",
+                    symptoms: "A menudo es <span class='text-emphasis'>ASINTOMÁTICO</span> durante años. Algunas personas tienen síntomas similares a la gripe (síndrome retroviral agudo) pocas semanas después de la infección. Solo la prueba lo confirma.",
+                    consequence: "Si no se trata, el virus destruye el sistema inmune, dejando al cuerpo vulnerable a infecciones graves y ciertos tipos de cáncer, lo que se conoce como <span class='text-emphasis'>SIDA</span>."
+                },
+                tricomoniasis: {
+                    title: "Tricomoniasis (Trichomonas vaginalis)",
+                    what: "Es una ITS muy común causada por un <span class='text-emphasis'>parásito</span> protozoo. Se transmite principalmente durante el sexo.",
+                    curable: "SÍ, se cura fácilmente con <span class='text-emphasis'>antibióticos</span> orales (generalmente Metronidazol o Tinidazol), a menudo en una sola dosis.",
+                    treatment: "Antibióticos. Es crucial que <span class='text-emphasis'>ambas personas</span> en la pareja reciban tratamiento al mismo tiempo para evitar la reinfección.",
+                    symptoms: "Alrededor del 70% de las personas son <span class='text-emphasis'>ASINTOMÁTICAS</span>. En mujeres: flujo vaginal abundante, espumoso, amarillo verdoso, con olor fuerte, picazón y ardor al orinar.",
+                    consequence: "Aumenta significativamente el riesgo de contraer o transmitir otras ITS (incluido el VIH). En mujeres embarazadas, puede causar <span class='text-emphasis'>parto prematuro</span> o bajo peso al nacer."
+                }
+            },
+            gameContent: [
+                { id: 1, title: "La Fiesta de Fin de Semana", icon: '<svg class="w-6 h-6 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15.546c-.52-.39-1.242-.71-2.126-.952A12.001 12.001 0 0012 3.654C8.807 5.093 5.378 7.234 3 9.44M2.383 14h19.234c.328 0 .548.35.328.65L18.17 18.2c-.22.3-.642.35-.91.077L15 15.65c-.27-.27-.7-.3-.92-.077L12 17.65c-.22.22-.65.25-.91.077L8.74 15.65c-.27-.27-.7-.3-.92-.077L4.318 18.2c-.22.3-.642.35-.91.077L2.383 14z"></path></svg>',
+                    story: "Estás en una fiesta. Conoces a Sofía, tienen una conexión instantánea y terminan solos en el balcón. Ella te dice: 'Nunca me había sentido tan bien con alguien. ¿Vamos a la habitación? Pero, por favor, no compliquemos el momento con tonterías.'",
+                    choiceRisky: "Tienes razón, arruinemos el momento. Dejémonos llevar.",
+                    choiceSafe: "Me encanta la conexión, pero hay una 'tontería' que no podemos saltar. Usemos protección, por respeto a los dos.",
+                    partnerReality: "Sofía es asintomática y no lo sabe, pero tenía <span class='text-emphasis'>Clamidia</span> y <span class='text-emphasis'>VPH</span>.", itsRisk: ["clamidia", "vph"],
+                    obstacle: { text: "Sofía te mira decepcionada: 'Pensé que confiabas en mí. Yo me cuido. ¿De verdad vas a parar este momento por un plástico?'", response: "Mi confianza está en cuidarnos, no en asumir. Es una norma que tengo por mi salud. Si de verdad te importo, entenderás que no es un rechazo, es respeto mutuo." } },
+                { id: 2, title: "La Pareja de Hace Tiempo", icon: '<svg class="w-6 h-6 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>',
+                    story: "Llevas 6 meses saliendo con Mateo. Han usado condón siempre, pero esta noche, él te dice: 'Ya somos una pareja estable. Me gustaría que lo hiciéramos sin condón. Si ambos somos 'sanos', ¿qué puede pasar?'",
+                    choiceRisky: "Está bien, tienes razón. Llevamos mucho tiempo juntos y confío en ti.",
+                    choiceSafe: "El tiempo no cambia el riesgo. Sé que me quieres, y por eso, debemos seguir cuidándonos. Hay cosas que la confianza no puede prevenir.",
+                    partnerReality: "Mateo tuvo relaciones de riesgo antes de empezar contigo. Él tenía <span class='text-emphasis'>Herpes Genital</span> (sin brote activo) y <span class='text-emphasis'>Sífilis</span> (en etapa latente).", itsRisk: ["herpes", "sifilis"],
+                    obstacle: { text: "Mateo se molesta un poco: '¿Crees que te estoy engañando? ¡Me ofendes! Si me quisieras de verdad, no dudarías.'", response: "Justo porque te quiero y me quiero, debemos ser responsables. No se trata de engaño; se trata de que las ITS no dan avisos. Hagamos un pacto: pruebas médicas juntos, y luego hablamos." } },
+                { id: 3, title: "El Ex que Vuelve", icon: '<svg class="w-6 h-6 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0 0l-3-3m3 3l3-3m-3 3h-3m6 0h-3m-4 0v-4a2 2 0 012-2h2a2 2 0 012 2v4m-4-8h4m-4-4h4m-4 0V5a2 2 0 012-2h2a2 2 0 012 2v2"></path></svg>',
+                    story: "Tu ex, Dani, te propone ir a 'hablar y recordar los viejos tiempos'. La química es innegable. Recuerdas que hace 4 meses estuvo con otra persona. Te dice: 'Yo soy una persona limpia. Además, ¿no habíamos dicho que haríamos las pruebas al principio?'",
+                    choiceRisky: "Tienes razón, yo sé que eres responsable. La última vez todo estuvo bien.",
+                    choiceSafe: "El pasado es pasado. Mi regla es: si no hemos estado 100% monógamos y sin pruebas recientes JUNTOS, no hay excepciones. Usemos el condón o lo dejamos para otro día.",
+                    partnerReality: "Dani adquirió <span class='text-emphasis'>Gonorrea</span> y <span class='text-emphasis'>Hepatitis B</span> en ese periodo de soltería. Ambas infecciones estaban asintomáticas en ese momento.", itsRisk: ["gonorrea", "hepatitisb"],
+                    obstacle: { text: "Dani intenta ser cariñoso, pero insiste: 'Arruinas el mood. ¿De verdad vas a ser así de radical después de todo lo que hemos pasado?'", response: "El 'mood' puede esperar, mi salud no. No es ser radical, es ser claro. Si no quieres usar protección, respeto tu decisión, pero la mía es no avanzar. Hablemos de otra cosa." } },
+                { id: 4, title: "La Propuesta Arriesgada", icon: '<svg class="w-6 h-6 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>',
+                    story: "Estás con Álex y todo va muy bien. Él sugiere tener sexo anal, pero te dice: 'Es mi práctica favorita, y si te parece, podemos intentarlo sin condón. Las probabilidades de ITS son mínimas así, ¿no?'",
+                    choiceRisky: "Confío en ti y en tu información. Hagámoslo como quieres, para probar algo nuevo.",
+                    choiceSafe: "Me entusiasma probar, pero el riesgo existe en cualquier contacto sexual. Si vamos a hacerlo, usaremos un condón nuevo. ¡No hay excepciones!",
+                    partnerReality: "Álex te dio información incorrecta. El sexo anal sin protección tiene un riesgo <span class='text-emphasis'>MUY ALTO</span> de transmisión de ITS. Álex estaba infectado con <span class='text-emphasis'>VIH</span> y <span class='text-emphasis'>Tricomoniasis</span>.", itsRisk: ["vih", "tricomoniasis"],
+                    obstacle: { text: "Álex se detiene y dice: 'Pero no siento nada malo. Además, es incómodo con condón, no se siente igual.'", response: "La incomodidad es temporal, una infección no. La sensación no vale el riesgo. Si no es con protección, no es un no a ti, es un sí a mi salud." } },
+                { id: 5, title: "Boca a Boca", icon: '<svg class="w-6 h-6 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16h4M4 8h16M4 12h16m0 4v4m0-12v4M4 8V4m0 4v4m0 4h4m4 0h4m4 0h4m-4 0v4m0-4v-4m-4 4h-4m4 0h4m-4 0v4m0-4v-4m-4 4h-4m4 0v-4m-4 0h4m4 0h-4m-4 4h4m4 0h-4m4 0v-4m-4 4v-4m4 4h-4"></path></svg>',
+                    story: "Tu pareja te está dando sexo oral, pero tú piensas en el riesgo de ITS. Cuando lo mencionas, te dice: 'Tranquilo/a, ¿quién usa condón para esto? Es totalmente seguro, es solo la boca.'",
+                    choiceRisky: "Tienes razón, no es como el sexo tradicional. Sigamos, olvidemos las reglas.",
+                    choiceSafe: "El riesgo es menor, pero no es cero. Para el oral, hay barreras como los 'dental dams' o podemos improvisar. Prefiero el condón en la otra parte para asegurar.",
+                    partnerReality: "Tu pareja tenía <span class='text-emphasis'>VPH</span> en la garganta (orofaríngeo) y una llaga de <span class='text-emphasis'>Sífilis</span> que estaba cicatrizando, pero seguía siendo contagiosa.", itsRisk: ["vph", "sifilis"],
+                    obstacle: { text: "Tu pareja se molesta: '¡Qué exagerado/a! Es el acto más íntimo. Es la primera vez que alguien me pide protección para esto.'", response: "La primera vez siempre tiene que ser segura. Es íntimo, sí, y por eso, cuidamos cada parte. Si no quieres usar protección, respeto tu decisión, pero la mía es no avanzar. Mi boca, mis reglas." } },
+                { id: 6, title: "Brote No Visible", icon: '<svg class="w-6 h-6 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 1.343 3 3s-1.343 3-3 3-3-1.343-3-3 1.343-3 3-3z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8zm0-14c-3.313 0-6 2.687-6 6s2.687 6 6 6 6-2.687 6-6-2.687-6-6-6z"></path></svg>',
+                    story: "Tu pareja, Chris, te dice que es totalmente seguro. 'A veces tengo herpes, pero no tengo ningún brote activo ahora. El doctor dijo que si no hay llagas, es imposible que te lo pegue.'",
+                    choiceRisky: "Me alegra que me avises. Confiemos en que el doctor tiene razón y no hay brote visible.",
+                    choiceSafe: "Agradezco tu honestidad, pero sé que el herpes puede contagiarse incluso sin síntomas visibles. Usemos doble protección, ¡o mejor lo dejamos para otro día!",
+                    partnerReality: "Chris te dio media verdad. El riesgo de contagio es más bajo sin brote, pero no es imposible. Además, Chris también era portador asintomático de <span class='text-emphasis'>Gonorrea</span>.", itsRisk: ["herpes", "gonorrea"],
+                    obstacle: { text: "Chris suspira: 'Pero es que llevo mucho tiempo sin un brote. ¿Me estás diciendo que nunca podremos estar tranquilos?'", response: "Podremos estar tranquilos cuando ambos usemos protección o tengamos un plan claro con el médico. Hoy no vamos a arriesgarnos. Vamos a ver una película mejor." } },
+                { id: 7, title: "Compartiendo la Diversión", icon: '<svg class="w-6 h-6 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 0v4m0-4h4m-4 0H8m-4 4h4m-4 0v-4m0-4h4m4 0h4m4 0h-4m-4 0v4m4-4V8m0 4h-4m-4 0h-4m-4 0v4m4 0h4m4 0h-4m4 0v-4m0-4h-4m-4 4h-4m4 0v-4m-4 0h4m4 0h-4m-4 4h4m4 0h-4m4 0v-4m-4 4v-4m4 4h-4"></path></svg>',
+                    story: "Tu nueva pareja te propone usar un juguete sexual para intensificar el juego. Antes de pasártelo, te dice: 'No te preocupes, yo soy la única que lo usa.'",
+                    choiceRisky: "¡Genial! Me muero por probarlo. Pásamelo ya.",
+                    choiceSafe: "Un momento. ¿Podemos limpiarlo primero y ponerle un condón nuevo? Me hace sentir más seguro/a.",
+                    partnerReality: "El juguete tenía fluidos microscópicos de tu pareja, que era portadora asintomática de <span class='text-emphasis'>Clamidia</span> y del virus de la <span class='text-emphasis'>Hepatitis B</span> (si había contacto con sangre o microheridas).", itsRisk: ["clamidia", "hepatitisb"],
+                    obstacle: { text: "Tu pareja se ríe: '¡Ay, eres demasiado cauteloso/a! Nadie hace eso. Es solo un juguete, no un arma.'", response: "Tienes razón, no es un arma, pero los fluidos sí pueden ser vehículos. Mi placer va de la mano con mi tranquilidad. Si no es con protección, no. Respetemos los límites." } },
+                { id: 8, title: "Juicio Impulsivo", icon: '<svg class="w-6 h-6 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19H7a2 2 0 01-2-2v-6a2 2 0 012-2h2m4 0h2a2 2 0 012 2v6a2 2 0 01-2 2h-2m-4 0v-4a2 2 0 012-2h2a2 2 0 012 2v4m-4-8h4m-4-4h4m-4 0V5a2 2 0 012-2h2a2 2 0 012 2v2"></path></svg>',
+                    story: "Estás con tu pareja y tienes dudas sobre usar el condón, pero el ambiente es muy intenso. Tu pareja, notando tu vacilación, te susurra: '¿Qué pasa? ¿Tienes miedo? No seas lento/a, ¡aprovechemos el momento!'",
+                    choiceRisky: "Odio la presión, pero odio más arruinar el momento. ¡Adelante!",
+                    choiceSafe: "No es miedo, es responsabilidad. Me gusta el momento, pero me gusta más mi futuro. El condón va, sí o sí, o paramos aquí.",
+                    partnerReality: "Tu pareja estaba bajo presión de terminar rápido y era portadora asintomática de <span class='text-emphasis'>VIH</span> y <span class='text-emphasis'>Clamidia</span>.", itsRisk: ["vih", "clamidia"],
+                    obstacle: { text: "Tu pareja se cruza de brazos: 'Eres un aguafiestas. Creí que eras más seguro/a de ti mismo/a.'", response: "Mi seguridad se basa en protegerme. Un momento no vale arriesgar mi salud. Un momento no vale arriesgar mi salud. Si no entiendes eso, no estás listo/a para compartir este nivel de intimidad. Lo siento, me voy." } }
+            ]
+        };
+
+        let currentScenario = null; // Almacena el escenario actual si estamos jugando
+
+        // --- 2. FUNCIONES DE RENDERIZADO Y NAVEGACIÓN ---
+
+        function navigate(section, scenarioId = null) {
+            const contentDiv = document.getElementById('app-content');
+            const footer = document.getElementById('main-footer');
+            contentDiv.innerHTML = '';
+            footer.classList.add('hidden'); // Ocultar por defecto
+
+            switch (section) {
+                case 'home':
+                    renderHome(contentDiv);
+                    footer.classList.remove('hidden');
+                    break;
+                case 'game':
+                    renderGameMenu(contentDiv);
+                    break;
+                case 'scenario':
+                    currentScenario = APP_DATA.gameContent.find(s => s.id === scenarioId);
+                    if (currentScenario) {
+                        renderScenario(contentDiv, currentScenario);
+                    } else {
+                        renderGameMenu(contentDiv); // Fallback
+                    }
+                    break;
+                case 'library':
+                    renderITS(contentDiv);
+                    break;
+                case 'key_advice':
+                    renderKeyAdvice(contentDiv);
+                    break;
+                case 'bibliography':
+                    renderBibliography(contentDiv);
+                    break;
+                default:
+                    renderHome(contentDiv);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 2.1 Renderizado de INICIO
+        function renderHome(container) {
+            container.innerHTML = `
+                <div class="text-center py-10">
+                    <h2 class="text-5xl font-extrabold text-gray-900 mb-4">
+                        <span class="text-neon">¡Bienvenido/a a la Estación 2:</span> El Juego de las Consecuencias! 🚦
+                    </h2>
+                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                        Tu vida sexual, <strong class="text-emphasis">TUS REGLAS</strong>. Aquí no hay juicios, solo realidades.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-10 mt-10">
+                    <!-- Introducción -->
+                    <div class="p-8 bg-white rounded-xl card-shadow border border-gray-100 border-l-4 border-neon">
+                        <h3 class="text-3xl font-bold text-neon mb-4 border-b pb-2 flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            INTRODUCCIÓN
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed mb-3">
+                            La adolescencia es una etapa de grandes descubrimientos, y la sexualidad es uno de ellos. Pero con la libertad viene la <span class="text-emphasis">responsabilidad</span>. Este juego pone a prueba algo más importante que tus conocimientos: tu capacidad para <span class="text-emphasis">comunicar tus límites</span> y <span class="text-emphasis">proteger tu salud</span> en el calor del momento.
+                        </p>
+                        <p class="text-gray-700 leading-relaxed">
+                            Las Infecciones de Transmisión Sexual (ITS) son <span class="text-emphasis">silenciosas</span> y comunes. Una decisión impulsiva puede tener una consecuencia de por vida. <span class="text-emphasis">Tu destino lo eliges tú</span>, en cada interacción.
+                        </p>
+                    </div>
+
+                    <!-- Cómo Jugar -->
+                    <div class="p-8 bg-white rounded-xl card-shadow border border-gray-100 border-l-4 border-neon">
+                        <h3 class="text-3xl font-bold text-neon mb-4 border-b pb-2 flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.017-.487-.046l-5.384-1.2A2 2 0 013 17.5V9.467c0-.495.234-.948.6-1.215l5.385-3.832c.15-.104.34-.16.54-.16H10a2 2 0 012 2v2a2 2 0 002 2z"></path></svg>
+                            ¿CÓMO JUGAR?
+                        </h3>
+                        <ul class="space-y-4 text-gray-700 text-lg">
+                            <li class="flex items-start">
+                                <span class="font-bold text-neon mr-3 mt-1">1️⃣</span>
+                                <div><strong class="font-semibold text-emphasis">Lee la Historia:</strong> Presentaremos 8 situaciones comunes de la vida adolescente.</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="font-bold text-neon mr-3 mt-1">2️⃣</span>
+                                <div><strong class="font-semibold text-emphasis">Toma una Decisión:</strong> Elige entre dos opciones. No hay etiquetas de "bueno" o "malo" a simple vista.</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="font-bold text-neon mr-3 mt-1">3️⃣</span>
+                                <div><strong class="font-semibold text-emphasis">Supera el Reto:</strong> Si eliges protegerte, te daremos una <span class="text-emphasis">respuesta asertiva modelo</span> para la objeción de la pareja.</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="font-bold text-neon mr-3 mt-1">4️⃣</span>
+                                <div><strong class="font-semibold text-emphasis">La Revelación:</strong> Siempre sabrás la <span class="text-emphasis">realidad médica</span> que enfrentaste, sin importar tu elección.</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-center mt-16">
+                    <button onclick="navigate('game')" class="bg-neon hover:bg-cyan-600 text-white font-bold py-4 px-12 rounded-full text-xl transition duration-300 transform hover:scale-105 shadow-2xl shadow-cyan-400/70 border border-white">
+                        ➡️ ¡Empezar el Juego!
+                    </button>
+                </div>
+            `;
+        }
+
+        // 2.2 Renderizado del MENÚ de Juego
+        function renderGameMenu(container) {
+            container.innerHTML = `
+                <h2 class="text-4xl font-bold text-gray-900 mb-8 border-b-2 border-neon pb-2 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 100 4m4-4a2 2 0 100 4m-4 4a2 2 0 100 4m4-4a2 2 0 100 4m-4 4a2 2 0 100 4m4-4a2 2 0 100 4m4-4a2 2 0 100 4"></path></svg>
+                    🎮 Elige tu Escenario
+                </h2>
+                <p class="text-lg text-gray-600 mb-8">Selecciona una de las 8 situaciones. Recuerda, el objetivo es aprender a manejar la presión y tomar la mejor decisión para tu salud.</p>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${APP_DATA.gameContent.map(scenario => `
+                        <div onclick="navigate('scenario', ${scenario.id})" 
+                             class="p-6 bg-white rounded-xl card-shadow border-t-4 border-neon hover:shadow-xl transition duration-300 cursor-pointer">
+                            <div class="flex items-center mb-2">
+                                ${scenario.icon}
+                                <h3 class="text-xl font-bold text-gray-800">${scenario.title}</h3>
+                            </div>
+                            <p class="text-sm text-gray-500">${scenario.story.substring(0, 90)}...</p>
+                            <button class="mt-4 text-neon font-semibold text-sm hover:underline">Jugar Escenario →</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // 2.3 Renderizado del Escenario INTERACTIVO
+        function renderScenario(container, scenario) {
+            const initialView = `
+                <button onclick="navigate('game')" class="text-sm text-neon hover:underline mb-6 flex items-center font-semibold">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Volver al Menú
+                </button>
+                <div id="scenario-box" class="p-8 bg-white rounded-xl card-shadow border border-gray-100">
+                    <h3 class="text-3xl font-extrabold text-neon mb-4 flex items-center">${scenario.icon} ${scenario.title}</h3>
+                    <div class="text-xl text-gray-700 leading-relaxed border-l-4 border-neon pl-4 py-2 bg-blue-50/50 rounded-r-md">
+                        <p>${scenario.story}</p>
+                    </div>
+                    
+                    <h4 class="text-2xl font-bold text-gray-800 mt-8 mb-4">¿Cuál es tu decisión?</h4>
+                    <div class="space-y-4">
+                        <button onclick="handleDecision(false)" class="decision-button-color decision-button w-full p-4 rounded-lg font-semibold text-lg transition duration-300 transform hover:scale-[1.01]">
+                            ${scenario.choiceRisky}
+                        </button>
+                        <button onclick="handleDecision(true)" class="decision-button-color decision-button w-full p-4 rounded-lg font-semibold text-lg transition duration-300 transform hover:scale-[1.01]">
+                            ${scenario.choiceSafe}
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = initialView;
+        }
+
+        // 2.4 Lógica de Decisión (Safe = true para la opción protectora)
+        function handleDecision(isSafeChoice) {
+            const scenarioBox = document.getElementById('scenario-box');
+            if (!currentScenario || !scenarioBox) return;
+
+            let htmlContent = '';
+
+            if (isSafeChoice) {
+                // Opción Protectora: Muestra Obstáculo -> Respuesta Asertiva -> Revelación
+                htmlContent = `
+                    <h3 class="text-3xl font-extrabold text-neon mb-4 flex items-center">${currentScenario.icon} ${currentScenario.title}</h3>
+                    <div class="text-xl text-gray-700 leading-relaxed border-l-4 border-neon pl-4 py-2 bg-blue-50/50 rounded-r-md mb-6">
+                        <p>${currentScenario.story}</p>
+                    </div>
+
+                    <div class="p-6 bg-red-100 rounded-xl mb-6 border-2 border-red-500 shadow-md">
+                        <h4 class="text-2xl font-bold text-red-700 mb-3 flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.38 18.001c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            ¡OBSTÁCULO! (Presión Social)
+                        </h4>
+                        <p class="text-lg text-gray-800 leading-relaxed italic">"${currentScenario.obstacle.text}"</p>
+                    </div>
+
+                    <div class="p-6 bg-green-100 rounded-xl mb-8 border-2 border-green-500 shadow-md">
+                        <h4 class="text-2xl font-bold text-green-700 mb-3 flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-4v10a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2z"></path></svg>
+                            Tu Respuesta Asertiva (Modelo)
+                        </h4>
+                        <p class="text-lg text-gray-800 leading-relaxed font-semibold">"${currentScenario.obstacle.response}"</p>
+                    </div>
+                    
+                    <button onclick="showRevelation()" class="w-full bg-neon hover:bg-cyan-600 text-white font-bold py-3 rounded-lg text-lg transition duration-300 shadow-lg shadow-cyan-400/50">
+                        Ver la Realidad Médica
+                    </button>
+                `;
+            } else {
+                // Opción de Riesgo: Salta directamente a la Revelación
+                showRevelation();
+                return;
+            }
+
+            scenarioBox.innerHTML = htmlContent;
+        }
+
+        // 2.5 Muestra la Revelación (Resultado)
+        function showRevelation() {
+            const scenarioBox = document.getElementById('scenario-box');
+            if (!currentScenario || !scenarioBox) return;
+
+            // Generar las fichas ITS de riesgo
+            const itsCards = currentScenario.itsRisk.map(key => {
+                const its = APP_DATA.itsLibrary[key];
+                return `
+                    <div class="p-4 bg-red-50 border border-red-300 rounded-lg shadow-sm">
+                        <h5 class="text-xl font-bold text-red-800 mb-1 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v10m-8 6h16a1 1 0 001-1v-4a1 1 0 00-1-1H3a1 1 0 00-1 1v4a1 1 0 001 1z"></path></svg>
+                            ${its.title}
+                        </h5>
+                        <p class="text-sm text-gray-700">${its.what.split('. ')[0]}...</p>
+                        <button onclick="navigate('library')" class="text-neon hover:underline text-sm font-semibold mt-2 block text-left">Ver Ficha Completa →</button>
+                    </div>
+                `;
+            }).join('');
+
+            const htmlContent = `
+                <h3 class="text-3xl font-extrabold text-gray-800 mb-4 flex items-center">${currentScenario.icon} ${currentScenario.title}</h3>
+                
+                <div class="p-6 bg-red-100 rounded-xl mb-8 border-2 border-red-500 shadow-lg">
+                    <h4 class="text-2xl font-bold text-red-700 mb-3 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        ⚠️ LA REVELACIÓN MÉDICA
+                    </h4>
+                    <p class="text-xl text-gray-700 leading-relaxed border-l-4 border-red-600 pl-4 py-2">
+                        <strong class="font-extrabold text-red-700">${currentScenario.partnerReality}</strong>
+                    </p>
+                </div>
+
+                <div class="mt-6">
+                    <h4 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.38 18.001c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        ITS en Juego:
+                    </h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        ${itsCards}
+                    </div>
+                </div>
+
+                <button onclick="navigate('game')" class="mt-8 w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-lg text-lg transition duration-300 shadow-lg">
+                    Elegir Otro Escenario
+                </button>
+            `;
+
+            scenarioBox.innerHTML = htmlContent;
+        }
+
+        // Función para el acordeón
+        function toggleAccordion(element) {
+            const header = element.closest('.accordion-header');
+            const content = element.nextElementSibling;
+            
+            // Toggle active class on header
+            header.classList.toggle('active');
+            
+            // Toggle active class on content for transitions
+            content.classList.toggle('active');
+        }
+
+        // 2.6 Renderizado de BIBLIOTECA DE ITS (Ahora en Párrafos Normales)
+        function renderITS(container) {
+            const libraryContent = Object.values(APP_DATA.itsLibrary).map((its, index) => `
+                <div class="w-full bg-white rounded-xl card-shadow border border-gray-100 mb-4 overflow-hidden">
+                    <!-- Cabecera del Acordeón -->
+                    <div id="accordion-header-${index}" 
+                         onclick="toggleAccordion(this)" 
+                         class="accordion-header flex justify-between items-center p-6 bg-blue-50/70 hover:bg-blue-100 cursor-pointer border-l-4 border-neon transition duration-200">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                            <svg class="w-5 h-5 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v10m-8 6h16a1 1 0 001-1v-4a1 1 0 00-1-1H3a1 1 0 00-1 1v4a1 1 0 001 1z"></path></svg>
+                            ${its.title}
+                        </h3>
+                        <!-- Icono de flecha para indicar el estado -->
+                        <svg class="w-5 h-5 text-neon arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+
+                    <!-- Contenido Desplegable del Acordeón (Párrafos) -->
+                    <div id="accordion-content-${index}" class="accordion-content bg-white px-6">
+                        <div class="space-y-4 text-gray-700 py-3">
+                            <p class="leading-relaxed">
+                                <strong class="font-bold text-gray-900">¿Qué es?</strong>: ${its.what}
+                            </p>
+                            <p class="leading-relaxed">
+                                <strong class="font-bold text-gray-900">Curabilidad:</strong> ${its.curable}
+                            </p>
+                            <p class="leading-relaxed">
+                                <strong class="font-bold text-gray-900">Tratamiento:</strong> ${its.treatment}
+                            </p>
+                            <p class="leading-relaxed">
+                                <strong class="font-bold text-gray-900">Síntomas Clave:</strong> ${its.symptoms}
+                            </p>
+                            <p class="leading-relaxed">
+                                <strong class="font-bold text-gray-900">Consecuencias a Largo Plazo:</strong> ${its.consequence}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <h2 class="text-4xl font-bold text-gray-900 mb-8 border-b-2 border-neon pb-2 flex items-center text-center">
+                    <svg class="w-8 h-8 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.433 9.351 5 8 5c-4.418 0-8 2.806-8 6s3.582 6 8 6c.905 0 1.776-.177 2.593-.423M12 6.253c1.168.82 2.649 1.347 4 1.347 4.418 0 8-2.806 8-6s-3.582-6-8-6c-.905 0-1.776.177-2.593.423M12 6.253v13"></path></svg>
+                    📚 Biblioteca de ITS: Información Esencial
+                </h2>
+                <p class="text-lg text-gray-600 mb-8 text-center">Haz clic en el título de cada infección para desplegar y ver la información completa.</p>
+                <div class="max-w-4xl mx-auto">
+                    ${libraryContent}
+                </div>
+            `;
+        }
+
+        // 2.7 Renderizado de CONSEJOS CLAVE
+        function renderKeyAdvice(container) {
+            const messages = [
+                { title: "Las apariencias ENGÁÑAN", icon: '<svg class="w-8 h-8 text-neon mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825a10.05 10.05 0 01-11.875-1.55m11.875 1.55l-2-2m2 2l2-2m2-2a9 9 0 10-18 0 9 9 0 0018 0z"></path></svg>', detail: "<p>Una persona atractiva, 'limpia' o con una buena historia de vida puede ser un portador asintomático. La <span class='text-emphasis'>confianza NO previene</span> infecciones.</p><p class='mt-2'>El condón y las pruebas son tu única defensa real. No asumas que sabes el historial de nadie, ¡ni siquiera el tuyo!</p>" },
+                { title: "El CHECK-UP es obligatorio", icon: '<svg class="w-8 h-8 text-neon mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-4v10a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2z"></path></svg>', detail: "<p>Tu mejor filtro no es la intuición, es hacerte <span class='text-emphasis'>pruebas periódicas</span> y exigir que tu pareja haga lo mismo.</p><p class='mt-2'>No es desconfianza, es evidencia médica. Si no lo harías con un extraño, ¿por qué con una pareja? Las ITS no respetan el estado civil.</p>" },
+                { title: "Tu superpoder es la ASERTIVIDAD", icon: '<svg class="w-8 h-8 text-neon mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h8m-4 4h4m-4-8h4m-4 0v-2a2 2 0 012-2h2a2 2 0 012 2v2m-8 8v2a2 2 0 002 2h2a2 2 0 002-2v-2"></path></svg>', detail: "<p>No es 'arruinar el momento'; es <span class='text-emphasis'>proteger tu futuro</span>. Una pareja que te presiona o te juzga por cuidarte no es una buena pareja.</p><p class='mt-2'>Si tienes que elegir entre el 'mood' de alguien y tu salud, elige tu salud. ¡Tu valor está en tu firmeza!</p>" },
+                { title: "Amor Propio = Cuidado Propio", icon: '<svg class="w-8 h-8 text-neon mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>', detail: "<p>No arriesgues una consecuencia que puede durar toda la vida (o ser mortal) por un momento de placer. Sé <span class='text-emphasis'>egoísta con tu salud</span>; es la única que tienes.</p><p class='mt-2'>Una vida con salud es más importante que cualquier noche de pasión sin protección. El arrepentimiento es la peor ITS.</p>" }
+            ];
+
+            const adviceCards = messages.map(msg => `
+                <div class="p-8 bg-white rounded-xl card-shadow border border-gray-100 transition duration-300 hover:border-neon text-center">
+                    <div class="flex justify-center">${msg.icon}</div>
+                    <h3 class="text-2xl font-extrabold text-gray-800 mb-3">${msg.title}</h3>
+                    <div class="text-lg text-gray-700 text-left">${msg.detail}</div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <h2 class="text-4xl font-bold text-gray-900 mb-8 border-b-2 border-neon pb-2 flex items-center justify-center text-center">
+                    <svg class="w-8 h-8 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    🧘‍♀️ Consejos Clave: La Única Consecuencia que Debes Buscar es la PAZ MENTAL
+                </h2>
+                <p class="text-lg text-gray-600 mb-8 text-center">Reflexiones y mensajes directos para ayudarte a tomar decisiones <span class='text-emphasis'>inteligentes</span> fuera del juego.</p>
+                <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                    ${adviceCards}
+                </div>
+            `;
+        }
+
+        // 2.8 Renderizado de BIBLIOGRAFÍA MÉDICA
+        function renderBibliography(container) {
+            container.innerHTML = `
+                <h2 class="text-4xl font-bold text-gray-900 mb-8 border-b-2 border-neon pb-2 flex items-center justify-center text-center">
+                    <svg class="w-8 h-8 mr-3 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.433 9.351 5 8 5c-4.418 0-8 2.806-8 6s3.582 6 8 6c.905 0 1.776-.177 2.593-.423M12 6.253c1.168.82 2.649 1.347 4 1.347 4.418 0 8-2.806 8-6s-3.582-6-8-6c-.905 0-1.776.177-2.593.423M12 6.253v13"></path></svg>
+                    🔬 Bibliografía Médica y Fuentes de Consulta
+                </h2>
+                <div class="p-8 bg-white rounded-xl card-shadow border border-gray-100 border-l-4 border-neon max-w-4xl mx-auto">
+                    <p class="text-lg text-gray-700 mb-6">La información médica contenida en esta herramienta educativa fue consultada en las siguientes organizaciones especializadas y documentos de salud pública:</p>
+                    
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 border-b pb-2 text-neon">Fuentes Primarias y Guías</h3>
+                    <ul class="list-none space-y-4 text-gray-700">
+                        <li class="flex items-start">
+                            <span class="text-neon text-xl mr-3 font-bold">•</span>
+                            <div>
+                                <strong class="text-emphasis">Centros para el Control y la Prevención de Enfermedades (<a href="https://www.cdc.gov/std/default.htm" target="_blank" class="hover:underline text-blue-600">CDC</a>)</strong>
+                                <p class="text-sm text-gray-600">División de Prevención de ITS (DSTDP). Específicamente, las hojas informativas y las guías de tratamiento para VPH, Clamidia, Gonorrea, Sífilis y VIH.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-neon text-xl mr-3 font-bold">•</span>
+                            <div>
+                                <strong class="text-emphasis">Organización Mundial de la Salud (<a href="https://www.who.int/health-topics/sexually-transmitted-infections" target="_blank" class="hover:underline text-blue-600">OMS</a>)</strong>
+                                <p class="text-sm text-gray-600">Guías y estadísticas globales sobre las Infecciones de Transmisión Sexual. Especial énfasis en la prevalencia global y la resistencia a antibióticos.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-neon text-xl mr-3 font-bold">•</span>
+                            <div>
+                                <strong class="text-emphasis">National Institutes of Health (<a href="https://www.nih.gov/health-information/nih-medlineplus" target="_blank" class="hover:underline text-blue-600">NIH MedlinePlus</a>)</strong>
+                                <p class="text-sm text-gray-600">Recursos de salud detallados y verificados sobre todas las infecciones mencionadas.</p>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3 class="text-xl font-bold text-gray-800 mt-6 mb-3 border-b pb-2 text-neon">Más Información para Jóvenes (Recursos de Referencia)</h3>
+                    <ul class="list-none space-y-4 text-gray-700">
+                        <li class="flex items-start">
+                            <span class="text-neon text-xl mr-3 font-bold">•</span>
+                            <div>
+                                <strong class="text-emphasis">Planned Parenthood (<a href="https://www.plannedparenthood.org/learn/stds-hiv-safer-sex" target="_blank" class="hover:underline text-blue-600">Página de ETS</a>)</strong>
+                                <p class="text-sm text-gray-600">Información accesible y directa para adolescentes sobre prevención, pruebas y tratamiento.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-neon text-xl mr-3 font-bold">•</span>
+                            <div>
+                                <strong class="text-emphasis">Recursos Locales de Salud Pública</strong>
+                                <p class="text-sm text-gray-600">Para ubicar un centro de pruebas o vacunación gratuito o de bajo costo en tu área, consulta el sitio web de tu Secretaría de Salud local o estatal.</p>
+                            </div>
+                        </li>
+                    </ul>
+
+
+                    <p class="mt-8 text-sm text-gray-500 border-t pt-3">
+                        <strong class="text-red-600">Descargo de Responsabilidad:</strong> Esta herramienta es educativa y no sustituye la consulta médica profesional, el diagnóstico o el tratamiento. Si tienes síntomas, o requieres consejo médico o de un psicólogo, consulta siempre a un profesional de la salud.
+                    </p>
+                </div>
+            `;
+        }
+
+        // --- 3. INICIALIZACIÓN ---
+
+        // Función de inicialización que se ejecuta al cargar la página
+        window.onload = () => {
+            navigate('home');
+        };
+
+    </script>
+</body>
+</html>
